@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Balanced Scorecard — Immersive Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1115;
+    --panel:#161a21;
+    --panel-2:#1d222b;
+    --gold:#f5c842;
+    --gold-soft:#f5c84222;
+    --text:#eceef2;
+    --muted:#9aa0aa;
+    --line:#2a3038;
+    --good:#4ad991;
+    --bad:#ff7a7a;
+    --r:18px;
+    --fin:#f5c842;
+    --cus:#5cc8ff;
+    --proc:#b88cff;
+    --learn:#4ad991;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--bg);color:var(--text);
+    font-family:'Nunito',system-ui,sans-serif;font-size:18px;line-height:1.65;
+    overflow-x:hidden;
+    background-image:radial-gradient(900px 500px at 80% -10%,#f5c84214,transparent),
+                     radial-gradient(700px 500px at -10% 30%,#5cc8ff10,transparent);
+  }
+  h1,h2,h3,.syne{font-family:'Syne',sans-serif;letter-spacing:-.5px;line-height:1.15;}
+
+  /* ---- Loading ---- */
+  #loader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:22px;transition:opacity .6s;}
+  .spin{width:64px;height:64px;border-radius:50%;border:5px solid #2a3038;border-top-color:var(--gold);
+    animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #loader p{color:var(--muted);font-weight:700;letter-spacing:2px;text-transform:uppercase;font-size:13px;}
+
+  /* ---- Progress bar ---- */
+  #topbar{position:fixed;top:0;left:0;right:0;z-index:500;background:#0f1115ee;backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:12px;}
+  #topbar .tag{font-family:'Syne';font-weight:800;font-size:15px;color:var(--gold);white-space:nowrap;}
+  #bar-wrap{flex:1;height:8px;background:#262c35;border-radius:99px;overflow:hidden;}
+  #bar{height:100%;width:0;background:linear-gradient(90deg,var(--gold),#ffe08a);border-radius:99px;transition:width .4s;}
+  #pct{font-weight:800;font-size:13px;color:var(--muted);min-width:38px;text-align:right;}
+
+  .wrap{max-width:860px;margin:0 auto;padding:0 18px 90px;}
+
+  /* ---- Hero ---- */
+  .hero{min-height:92vh;display:flex;flex-direction:column;justify-content:center;padding-top:60px;}
+  .kicker{display:inline-block;color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;
+    font-size:12px;border:1px solid var(--gold);padding:6px 14px;border-radius:99px;margin-bottom:22px;width:fit-content;}
+  .hero h1{font-size:clamp(38px,9vw,68px);margin:0 0 18px;font-weight:800;}
+  .hero h1 span{color:var(--gold);}
+  .hero p{color:var(--muted);font-size:20px;max-width:600px;margin:0 0 30px;}
+  .meta{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:34px;}
+  .chip{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 16px;
+    font-weight:700;font-size:14px;}
+  .chip b{color:var(--gold);}
+  .scroll-cue{color:var(--muted);font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;animation:bob 1.8s ease-in-out infinite;}
+  @keyframes bob{50%{transform:translateY(6px);}}
+
+  /* ---- Pathway nav ---- */
+  .pathway{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin:30px 0 10px;}
+  .pathway h3{margin:0 0 14px;font-size:18px;color:var(--gold);}
+  .steps{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .stepbtn{text-align:left;background:var(--panel-2);border:1px solid var(--line);color:var(--text);
+    border-radius:12px;padding:12px 14px;font-family:'Nunito';font-weight:700;font-size:14px;cursor:pointer;
+    display:flex;gap:10px;align-items:center;transition:.2s;}
+  .stepbtn:active{transform:scale(.97);}
+  .stepbtn .n{width:26px;height:26px;border-radius:50%;background:var(--gold-soft);color:var(--gold);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+
+  /* ---- Sections ---- */
+  section.module{padding:54px 0 10px;scroll-margin-top:70px;opacity:0;transform:translateY(28px);
+    transition:opacity .7s,transform .7s;}
+  section.module.in{opacity:1;transform:none;}
+  .num{font-family:'Syne';font-weight:800;color:var(--gold);font-size:14px;letter-spacing:2px;text-transform:uppercase;}
+  section.module h2{font-size:clamp(26px,6vw,38px);margin:8px 0 16px;}
+  .lead{color:var(--muted);font-size:19px;margin:0 0 18px;}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin:16px 0;}
+  .callout{background:var(--gold-soft);border:1px solid var(--gold);border-radius:var(--r);padding:18px 20px;margin:16px 0;}
+  .callout b{color:var(--gold);}
+  .qbox{border-left:4px solid var(--gold);padding:6px 0 6px 16px;margin:14px 0;font-style:italic;color:var(--text);}
+
+  ul.clean{list-style:none;padding:0;margin:10px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  ul.clean li{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-weight:600;font-size:15px;}
+
+  /* ---- Perspective explorer ---- */
+  .persp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0;}
+  .persp{border-radius:var(--r);padding:18px;cursor:pointer;border:1px solid var(--line);
+    background:var(--panel);transition:.25s;position:relative;overflow:hidden;}
+  .persp:active{transform:scale(.98);}
+  .persp .ico{font-size:30px;}
+  .persp h4{font-family:'Syne';margin:10px 0 6px;font-size:19px;}
+  .persp .ask{color:var(--muted);font-size:14px;font-weight:700;}
+  .persp .reveal{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+  .persp.open .reveal{max-height:600px;}
+  .persp .reveal .inner{padding-top:14px;border-top:1px dashed var(--line);margin-top:14px;font-size:14.5px;color:var(--muted);}
+  .persp .reveal .inner b{color:var(--text);}
+  .persp.fin{border-top:4px solid var(--fin);}
+  .persp.cus{border-top:4px solid var(--cus);}
+  .persp.proc{border-top:4px solid var(--proc);}
+  .persp.learn{border-top:4px solid var(--learn);}
+  .tap-hint{font-size:12px;color:var(--gold);font-weight:800;margin-top:10px;text-transform:uppercase;letter-spacing:1px;}
+
+  /* ---- Tables ---- */
+  .tbl{width:100%;border-collapse:collapse;margin:14px 0;font-size:14.5px;overflow:hidden;border-radius:12px;}
+  .tbl th{background:var(--panel-2);color:var(--gold);text-align:left;padding:11px 12px;font-family:'Syne';font-size:13px;}
+  .tbl td{padding:11px 12px;border-top:1px solid var(--line);background:var(--panel);vertical-align:top;}
+  .scrollx{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;border:1px solid var(--line);}
+  .scrollx .tbl{margin:0;border-radius:0;min-width:520px;}
+
+  /* ---- Steps list ---- */
+  .stepcard{display:flex;gap:14px;margin:12px 0;}
+  .stepcard .badge{width:38px;height:38px;border-radius:12px;background:var(--gold);color:#1a1a1a;
+    font-family:'Syne';font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+  .stepcard .body{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;flex:1;}
+  .stepcard .body b{color:var(--gold);}
+
+  /* ---- Good vs Weak ---- */
+  .vs{display:grid;grid-template-columns:1fr;gap:12px;}
+  .weak{border:1px solid var(--bad);border-radius:var(--r);padding:16px;background:#ff7a7a0d;}
+  .strong{border:1px solid var(--good);border-radius:var(--r);padding:16px;background:#4ad9910d;}
+  .weak .h,.strong .h{font-family:'Syne';font-weight:800;font-size:15px;margin-bottom:8px;}
+  .weak .h{color:var(--bad);} .strong .h{color:var(--good);}
+
+  /* ---- Checklist ---- */
+  .check{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:14px 16px;margin:8px 0;cursor:pointer;font-weight:700;transition:.2s;}
+  .check .box{width:26px;height:26px;border-radius:8px;border:2px solid var(--muted);flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;color:#1a1a1a;font-weight:900;transition:.2s;}
+  .check.done{border-color:var(--good);}
+  .check.done .box{background:var(--good);border-color:var(--good);}
+  .check.done span{color:var(--muted);text-decoration:line-through;}
+
+  /* ---- Quiz ---- */
+  .quiz{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin:18px 0;}
+  .qcount{color:var(--muted);font-weight:800;font-size:13px;letter-spacing:1px;text-transform:uppercase;}
+  .qtext{font-family:'Syne';font-weight:700;font-size:21px;margin:10px 0 18px;}
+  .opt{display:block;width:100%;text-align:left;background:var(--panel-2);border:1px solid var(--line);
+    color:var(--text);border-radius:12px;padding:15px 18px;margin:9px 0;font-family:'Nunito';font-weight:700;
+    font-size:16px;cursor:pointer;transition:.18s;}
+  .opt:active{transform:scale(.98);}
+  .opt.correct{background:#4ad9911f;border-color:var(--good);color:var(--good);}
+  .opt.wrong{background:#ff7a7a1f;border-color:var(--bad);color:var(--bad);}
+  .opt:disabled{cursor:default;}
+  .feedback{margin-top:14px;font-weight:800;min-height:24px;}
+  .feedback.ok{color:var(--good);} .feedback.no{color:var(--bad);}
+  .qnav{margin-top:18px;display:flex;justify-content:flex-end;}
+  .btn{background:var(--gold);color:#1a1a1a;border:none;border-radius:12px;padding:13px 26px;
+    font-family:'Syne';font-weight:800;font-size:16px;cursor:pointer;transition:.2s;}
+  .btn:active{transform:scale(.96);}
+  .btn[disabled]{opacity:.4;cursor:default;}
+
+  .result{text-align:center;padding:30px 10px;}
+  .result .score{font-family:'Syne';font-size:64px;font-weight:800;color:var(--gold);}
+
+  footer{text-align:center;color:var(--muted);font-size:13px;padding:40px 0 20px;}
+
+  /* confetti */
+  .confetti{position:fixed;width:11px;height:16px;top:-20px;z-index:8000;pointer-events:none;border-radius:2px;}
+
+  @media(max-width:560px){
+    body{font-size:17px;}
+    ul.clean,.persp-grid,.steps{grid-template-columns:1fr;}
+    .hero p{font-size:18px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="spin"></div><p>Loading Module…</p></div>
+
+<div id="topbar">
+  <span class="tag">⚖️ BSC</span>
+  <div id="bar-wrap"><div id="bar"></div></div>
+  <span id="pct">0%</span>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <span class="kicker">Topic 5 · Strategy Evaluation</span>
+    <h1>The <span>Balanced</span><br>Scorecard</h1>
+    <p>An immersive, tap-to-learn journey through how organisations measure if their strategy is really working — from four different angles.</p>
+    <div class="meta">
+      <span class="chip">🎯 <b>4</b> Perspectives</span>
+      <span class="chip">⏱️ <b>~25</b> min learning time</span>
+      <span class="chip">🧩 <b>8</b> quiz questions</span>
+    </div>
+    <div class="scroll-cue">Scroll to begin ↓</div>
+
+    <div class="pathway">
+      <h3>Your Learning Pathway</h3>
+      <div class="steps">
+        <button class="stepbtn" data-go="s1"><span class="n">1</span> What is BSC?</button>
+        <button class="stepbtn" data-go="s2"><span class="n">2</span> Why use it?</button>
+        <button class="stepbtn" data-go="s3"><span class="n">3</span> 4 Perspectives</button>
+        <button class="stepbtn" data-go="s4"><span class="n">4</span> Template</button>
+        <button class="stepbtn" data-go="s5"><span class="n">5</span> Worked Example</button>
+        <button class="stepbtn" data-go="s6"><span class="n">6</span> Assignment Steps</button>
+        <button class="stepbtn" data-go="s7"><span class="n">7</span> Mistakes & Tips</button>
+        <button class="stepbtn" data-go="s8"><span class="n">8</span> Quiz Challenge</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. WHAT -->
+  <section class="module" id="s1">
+    <div class="num">01 · The Basics</div>
+    <h2>What is a Balanced Scorecard?</h2>
+    <p class="lead">A strategy evaluation tool used to measure how well an organisation is performing.</p>
+    <div class="card">
+      It is called <b>"balanced"</b> because it does not only look at money or profit. It also looks at
+      <b>customers</b>, <b>internal operations</b>, and <b>employee learning</b>.
+    </div>
+    <div class="callout">
+      <b>In simple words:</b> The Balanced Scorecard helps an organisation check whether its strategy is working — from different angles, not just one.
+    </div>
+  </section>
+
+  <!-- 2. WHY -->
+  <section class="module" id="s2">
+    <div class="num">02 · Purpose</div>
+    <h2>Why do organisations use it?</h2>
+    <p class="lead">Because profit alone does not tell the full story.</p>
+    <ul class="clean">
+      <li>📏 Measure performance clearly</li>
+      <li>✅ Check if strategy is successful</li>
+      <li>🔍 Identify weaknesses</li>
+      <li>🧠 Improve decision-making</li>
+      <li>⚖️ Balance financial & non-financial</li>
+      <li>🔗 Link daily work to long-term goals</li>
+    </ul>
+    <div class="card">
+      <b>Example — A Bookstore</b><br>
+      A bookstore cannot only ask <i>"Did we make profit?"</i> It should also ask:
+      <div class="qbox">Are customers satisfied? · Are our operations efficient? · Are our staff improving? · Are we ready for digital competition?</div>
+    </div>
+  </section>
+
+  <!-- 3. PERSPECTIVES -->
+  <section class="module" id="s3">
+    <div class="num">03 · The Core</div>
+    <h2>The Four Perspectives</h2>
+    <p class="lead">Tap each card to explore its meaning, measures and a real bookstore example.</p>
+    <div class="persp-grid" id="perspGrid">
+      <!-- filled by JS -->
+    </div>
+  </section>
+
+  <!-- 4. TEMPLATE -->
+  <section class="module" id="s4">
+    <div class="num">04 · The Tool</div>
+    <h2>The Complete BSC Template</h2>
+    <p class="lead">Every perspective needs four things: an <b>objective</b>, a <b>measure (KPI)</b>, a <b>target</b>, and an <b>initiative</b>.</p>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Perspective</th><th>Objective</th><th>Measure / KPI</th><th>Target</th><th>Initiative</th></tr>
+        <tr><td>Financial</td><td>What financial result to improve?</td><td>How to measure it?</td><td>Expected target?</td><td>Action to take?</td></tr>
+        <tr><td>Customer</td><td>What customer result to improve?</td><td>How to measure it?</td><td>Expected target?</td><td>Action to take?</td></tr>
+        <tr><td>Internal Process</td><td>What process to improve?</td><td>How to measure it?</td><td>Expected target?</td><td>Action to take?</td></tr>
+        <tr><td>Learning & Growth</td><td>What skill/system to improve?</td><td>How to measure it?</td><td>Expected target?</td><td>Action to take?</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. EXAMPLE -->
+  <section class="module" id="s5">
+    <div class="num">05 · See It In Action</div>
+    <h2>Worked Example: MPH Bookstores</h2>
+    <p class="lead">A simple model — students should build their own version for their chosen company.</p>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Perspective</th><th>Objective</th><th>KPI</th><th>Target</th><th>Initiative</th></tr>
+        <tr><td>Financial</td><td>Increase online sales revenue</td><td>Monthly online sales</td><td>+15% in 6 months</td><td>Promote online book bundles & e-vouchers</td></tr>
+        <tr><td>Customer</td><td>Improve customer loyalty</td><td>Membership renewal rate</td><td>+20%</td><td>Member-only discounts & reading rewards</td></tr>
+        <tr><td>Internal Process</td><td>Improve online order processing</td><td>Avg. order processing time</td><td>Within 24 hours</td><td>Improve inventory & packing workflow</td></tr>
+        <tr><td>Learning & Growth</td><td>Improve staff digital skills</td><td>No. of staff trained</td><td>100% outlet staff</td><td>Training on online sales system</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6. ASSIGNMENT STEPS -->
+  <section class="module" id="s6">
+    <div class="num">06 · Do It Yourself</div>
+    <h2>Assignment, Step by Step</h2>
+    <div class="stepcard"><div class="badge">1</div><div class="body"><b>Choose one organisation</b> — POPULAR, MPH, Kinokuniya, Pustaka Mukmin, or any suitable company approved by your lecturer.</div></div>
+    <div class="stepcard"><div class="badge">2</div><div class="body"><b>Describe the company briefly</b> — what it does, who its customers are, and what challenge it faces.<br><i>e.g. MPH faces challenges from online platforms, changing reading habits, and fewer walk-in customers.</i></div></div>
+    <div class="stepcard"><div class="badge">3</div><div class="body"><b>Identify one main strategy</b> — <i>e.g. MPH wants to strengthen online sales and improve customer loyalty.</i></div></div>
+    <div class="stepcard"><div class="badge">4</div><div class="body"><b>Create a Balanced Scorecard</b> — complete all four perspectives, each with objective, KPI, target and initiative.</div></div>
+    <div class="stepcard"><div class="badge">5</div><div class="body"><b>Explain the scorecard</b> — say why each objective and initiative is suitable.</div></div>
+
+    <div class="card">
+      <b style="color:var(--gold)">✍️ Writing Template — Explanation Pattern</b>
+      <div class="qbox">"For the financial perspective, the objective is ______. This is important because ______. The KPI used is ______, and the target is ______. The initiative suggested is ______."</div>
+      Repeat this for all four perspectives, then close with a conclusion: the BSC evaluates strategy in a balanced way — not only profit, but also customers, operations and learning.
+    </div>
+  </section>
+
+  <!-- 7. MISTAKES -->
+  <section class="module" id="s7">
+    <div class="num">07 · Get It Right</div>
+    <h2>Common Mistakes & Good vs Weak</h2>
+    <p class="lead">Avoid these traps before you submit.</p>
+    <div class="scrollx">
+      <table class="tbl">
+        <tr><th>Mistake</th><th>Why it's wrong</th></tr>
+        <tr><td>Only focusing on profit</td><td>BSC must cover all four perspectives</td></tr>
+        <tr><td>KPI too vague</td><td>A KPI must be measurable</td></tr>
+        <tr><td>Target missing</td><td>The target shows what you want to achieve</td></tr>
+        <tr><td>Initiative too general</td><td>Initiative must explain the actual action</td></tr>
+        <tr><td>Same idea in every perspective</td><td>Each must focus on a different area</td></tr>
+      </table>
+    </div>
+
+    <div class="vs">
+      <div class="weak">
+        <div class="h">✗ Weak Example (Customer)</div>
+        Objective: "Make customers happy" · Measure: "Good service" · Target: "Better" · Initiative: "Improve"<br>
+        <small style="color:var(--muted)">Problem: vague, not measurable, no clear action.</small>
+      </div>
+      <div class="strong">
+        <div class="h">✓ Strong Example (Customer)</div>
+        Objective: "Improve customer satisfaction" · Measure: "Customer rating" · Target: "Achieve 4.5/5" · Initiative: "Train staff & improve store layout"<br>
+        <small style="color:var(--muted)">Clear KPI, specific target, realistic action.</small>
+      </div>
+    </div>
+
+    <div class="card">
+      <b style="color:var(--gold)">✅ Pre-Submission Checklist</b> — tap to tick:
+      <div id="checklist" style="margin-top:12px;"></div>
+    </div>
+  </section>
+
+  <!-- 8. QUIZ -->
+  <section class="module" id="s8">
+    <div class="num">08 · Test Yourself</div>
+    <h2>Quiz Challenge</h2>
+    <p class="lead">Answer all 8 correctly to complete the module. Wrong answer? Just try again. 💪</p>
+    <div class="quiz" id="quiz"></div>
+  </section>
+
+  <footer>
+    Web-Based Immersive Learning · Strategy Evaluation Framework<br>
+    Built for Principles of Management / Business Strategy
+  </footer>
+
+</div>
+
+<script>
+/* ============ AUDIO (shared ctx + unlock) ============ */
+let _ctx=null;
+function getAudioCtx(){
+  if(!_ctx){ try{ _ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} }
+  return _ctx;
+}
+window.addEventListener('touchstart',function unlock(){
+  const c=getAudioCtx(); if(c&&c.state==='suspended')c.resume();
+  window.removeEventListener('touchstart',unlock);
+},{once:true});
+function beep(freq,dur,type){
+  const c=getAudioCtx(); if(!c)return;
+  if(c.state==='suspended')c.resume();
+  const o=c.createOscillator(),g=c.createGain();
+  o.type=type||'sine';o.frequency.value=freq;
+  o.connect(g);g.connect(c.destination);
+  g.gain.setValueAtTime(.12,c.currentTime);
+  g.gain.exponentialRampToValueAtTime(.001,c.currentTime+(dur||.18));
+  o.start();o.stop(c.currentTime+(dur||.18));
+}
+const sGood=()=>{beep(660,.12);setTimeout(()=>beep(880,.16),90);};
+const sBad =()=>beep(180,.22,'sawtooth');
+const sTap =()=>beep(520,.07,'triangle');
+function victory(){[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.2),i*150));}
+
+/* ============ NAV (goTo, not scrollTo) ============ */
+function goTo(id){
+  const el=document.getElementById(id);
+  if(el){ sTap(); el.scrollIntoView({behavior:'smooth',block:'start'}); }
+}
+document.querySelectorAll('.stepbtn').forEach(b=>{
+  b.addEventListener('click',()=>goTo(b.dataset.go));
+});
+
+/* ============ LOADER ============ */
+window.addEventListener('load',()=>{
+  setTimeout(()=>{
+    const l=document.getElementById('loader');
+    l.style.opacity='0';
+    setTimeout(()=>l.style.display='none',600);
+  },650);
+});
+
+/* ============ REVEAL + PROGRESS ============ */
+const modules=[...document.querySelectorAll('section.module')];
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting)e.target.classList.add('in'); });
+},{threshold:.15});
+modules.forEach(m=>io.observe(m));
+
+function updateProgress(){
+  const sc=document.documentElement;
+  const total=sc.scrollHeight-sc.clientHeight;
+  const p=total>0?Math.min(100,Math.round((sc.scrollTop/total)*100)):0;
+  document.getElementById('bar').style.width=p+'%';
+  document.getElementById('pct').textContent=p+'%';
+}
+window.addEventListener('scroll',updateProgress,{passive:true});
+updateProgress();
+
+/* ============ PERSPECTIVES ============ */
+const PERSP=[
+  {c:'fin',ico:'💰',name:'1. Financial',ask:'Are we financially successful?',
+   mean:'Measures whether the organisation is achieving good financial results — money, profit, sales, cost, revenue.',
+   measures:'Sales revenue · profit margin · cost reduction · return on investment · cash flow · operating cost',
+   ex:'Bookstore: monthly book sales, online sales revenue, operating costs, profit from school book packages, promotion-period sales.'},
+  {c:'cus',ico:'😊',name:'2. Customer',ask:'Are customers satisfied?',
+   mean:'Measures how customers view the organisation — satisfaction, loyalty, service quality and experience.',
+   measures:'Satisfaction rating · repeat customers · complaints · online reviews · membership sign-ups · retention',
+   ex:'Bookstore: satisfaction with book variety, cashier waiting time, online order satisfaction, Google review rating.'},
+  {c:'proc',ico:'⚙️',name:'3. Internal Process',ask:'Are our operations efficient?',
+   mean:'Measures how well the organisation manages internal operations — efficiency, quality, speed and work process.',
+   measures:'Stock availability · delivery speed · order processing time · inventory accuracy · complaint handling time',
+   ex:'Bookstore: how fast books restock, inventory accuracy, online order speed, how easily customers find books.'},
+  {c:'learn',ico:'🌱',name:'4. Learning & Growth',ask:'Are our people improving?',
+   mean:'Measures whether the organisation is improving its people, technology and knowledge — skills, training, innovation.',
+   measures:'Training hours · employee satisfaction · digital system usage · innovation ideas · staff retention',
+   ex:'Bookstore: training in customer service & online systems, ability to manage digital inventory, staff book recommendations.'}
+];
+const grid=document.getElementById('perspGrid');
+PERSP.forEach(p=>{
+  const d=document.createElement('div');
+  d.className='persp '+p.c;
+  d.innerHTML=`<div class="ico">${p.ico}</div>
+    <h4>${p.name}</h4>
+    <div class="ask">${p.ask}</div>
+    <div class="reveal"><div class="inner">
+      <p><b>Meaning:</b> ${p.mean}</p>
+      <p><b>Measures:</b> ${p.measures}</p>
+      <p><b>Example:</b> ${p.ex}</p>
+    </div></div>
+    <div class="tap-hint">Tap to explore →</div>`;
+  d.addEventListener('click',()=>{
+    d.classList.toggle('open');
+    sTap();
+    d.querySelector('.tap-hint').textContent=d.classList.contains('open')?'Tap to close ↑':'Tap to explore →';
+  });
+  grid.appendChild(d);
+});
+
+/* ============ CHECKLIST ============ */
+const CHECKS=[
+  'I chose one organisation',
+  'I explained the company challenge',
+  'I included all four perspectives',
+  'Each has objective, KPI, target & initiative',
+  'My KPIs are measurable',
+  'My targets are specific',
+  'My initiatives are realistic',
+  'I explained the table clearly'
+];
+const cl=document.getElementById('checklist');
+CHECKS.forEach(t=>{
+  const r=document.createElement('div');
+  r.className='check';
+  r.innerHTML=`<div class="box">✓</div><span>${t}</span>`;
+  r.addEventListener('click',()=>{ r.classList.toggle('done'); if(r.classList.contains('done'))beep(700,.09,'triangle'); });
+  cl.appendChild(r);
+});
+
+/* ============ QUIZ ============ */
+const QUESTIONS=[
+  {q:'Why is the Balanced Scorecard called "balanced"?',
+   o:['Because it only measures yearly profit balance',
+      'Because it looks beyond money to customers, operations & learning',
+      'Because it balances the company budget every month',
+      'Because it gives equal pay to all employees'],a:1},
+  {q:'Which of these is NOT one of the four perspectives?',
+   o:['Customer perspective','Financial perspective','Marketing perspective','Learning & growth perspective'],a:2},
+  {q:'What is the main question of the Financial perspective?',
+   o:['Are customers happy and loyal?','Are our operations efficient?','Are our people improving?','Is the organisation financially healthy?'],a:3},
+  {q:'A "membership renewal rate" is a measure for which perspective?',
+   o:['Customer perspective','Financial perspective','Internal process perspective','Learning & growth perspective'],a:0},
+  {q:'The Internal Business Process perspective mainly focuses on…',
+   o:['Staff training and innovation','Profit margins and revenue','Efficiency, quality and speed of operations','Customer reviews and ratings'],a:2},
+  {q:'"Staff training hours" best measures which perspective?',
+   o:['Financial perspective','Learning & growth perspective','Customer perspective','Internal process perspective'],a:1},
+  {q:'Why is a target of "Better" considered weak?',
+   o:['It is too expensive to achieve','It focuses only on profit','It is not measurable or specific','It repeats the objective'],a:2},
+  {q:'In the BSC table, the "Initiative" column should contain…',
+   o:['The expected numerical target','The specific action to be taken','The way performance is measured','The name of the organisation'],a:1}
+];
+let qi=0, correctCount=0, answered=false;
+const quiz=document.getElementById('quiz');
+
+function renderQ(){
+  if(qi>=QUESTIONS.length){ renderResult(); return; }
+  answered=false;
+  const Q=QUESTIONS[qi];
+  quiz.innerHTML=`<div class="qcount">Question ${qi+1} of ${QUESTIONS.length}</div>
+    <div class="qtext">${Q.q}</div>
+    <div id="opts"></div>
+    <div class="feedback" id="fb"></div>
+    <div class="qnav"><button class="btn" id="next" disabled>Next →</button></div>`;
+  const opts=document.getElementById('opts');
+  Q.o.forEach((txt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';b.textContent=txt;
+    b.addEventListener('click',()=>handleAnswer(b,i,Q));
+    opts.appendChild(b);
+  });
+  document.getElementById('next').addEventListener('click',()=>{ qi++; correctCount=0; sTap(); renderQ(); });
+}
+
+function handleAnswer(btn,i,Q){
+  if(answered)return;
+  const fb=document.getElementById('fb');
+  if(i===Q.a){
+    answered=true;
+    btn.classList.add('correct');
+    [...document.querySelectorAll('.opt')].forEach(o=>o.disabled=true);
+    fb.textContent='✓ Correct!';fb.className='feedback ok';
+    sGood();
+    correctCount=1;
+    document.getElementById('next').disabled=false;
+    document.getElementById('next').textContent = qi===QUESTIONS.length-1 ? 'See Results →' : 'Next →';
+  }else{
+    // wrong: do NOT reveal correct answer, allow retry
+    btn.classList.add('wrong');btn.disabled=true;
+    fb.textContent='✗ Not quite — try another answer.';fb.className='feedback no';
+    sBad();
+  }
+}
+
+let totalScore=0;
+function renderResult(){
+  quiz.innerHTML=`<div class="result">
+    <div class="score">8/8</div>
+    <h2 style="margin:6px 0 10px;">Module Complete! 🎉</h2>
+    <p class="lead">You've mastered the Balanced Scorecard — financial, customer, internal process, and learning &amp; growth. Now go build one for your chosen company!</p>
+    <button class="btn" onclick="restart()">↻ Restart Quiz</button>
+  </div>`;
+  victory();
+  fireConfetti();
+}
+function restart(){ qi=0; correctCount=0; sTap(); renderQ(); }
+
+/* count actual correct across questions for honest score */
+// Simpler: since each question requires a correct answer to proceed, finishing = 8/8.
+
+renderQ();
+
+/* ============ CONFETTI ============ */
+function fireConfetti(){
+  const colors=['#f5c842','#5cc8ff','#b88cff','#4ad991','#ffe08a'];
+  for(let i=0;i<90;i++){
+    const c=document.createElement('div');
+    c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=colors[i%colors.length];
+    c.style.transform=`rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(c);
+    const fall=3000+Math.random()*2500, drift=(Math.random()-.5)*300;
+    c.animate([
+      {transform:`translate(0,0) rotate(0deg)`,opacity:1},
+      {transform:`translate(${drift}px,${window.innerHeight+60}px) rotate(${720+Math.random()*360}deg)`,opacity:.9}
+    ],{duration:fall,easing:'cubic-bezier(.2,.6,.4,1)'});
+    setTimeout(()=>c.remove(),fall);
+  }
+}
+</script>
+</body>
+</html>
